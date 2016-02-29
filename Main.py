@@ -4,6 +4,7 @@ from pygame import *
 import sys
 pygame.init()
 screen = pygame.display.set_mode( (680,480) )
+pygame.display.toggle_fullscreen()
 pygame.display.set_caption("TheLittleBlackBox 2.0")
 img = pygame.image.load("C:/Python34/TheLittleBlackBox_2.0/Images/BlackBoxIcon.png")
 icon = pygame.transform.scale(img, (32,32) )
@@ -16,6 +17,7 @@ clock = pygame.time.Clock()
 red = (255,0,0)
 green = (0,255,0)
 blue = (0,0,255)
+reloadBlue = (64, 153, 217)
 darkBlue = (0,0,128)
 white = (255,255,255)
 black = (0,0,0)
@@ -148,12 +150,12 @@ class bullet:
         #Making the rectangle/circle
         if direction == "E":
             AAfilledRoundedRect(screen, (cx(startx),cy(starty),30,3) , (red) ,0.5)
-            bullet.x = startx
-            bullet.y = starty
-            bullet.height = 3
-            bullet.width = 30
-            bullet.color = red
-            bullet.radius = 0.5
+            self.x = startx
+            self.y = starty
+            self.height = 3
+            self.width = 30
+            self.color = red
+            self.radius = 0.5
         print('made')
     def check(self):
         if self.x > pygame.Surface.get_width(screen):
@@ -172,15 +174,29 @@ class Velocity:
     vwait = None
     def __init__(self,waitIn):
         Velocity.wait = waitIn
+class roundRect():
+    RECT = None
+    color = None
+    radius = None
+    def __init__(rect,color,radius):
+        AAfilledRoundedRect(screen, rect , color , radius)
+        self.RECT = rect
+        self.color = color
+        self.radius = radius
+    def update(self):
+        AAfilledRoundedRect(screen,self.RECT,self.color,self.radius)
 class player:
     health = None
     RECT = None
     x = None
     y = None
+    reloading = False
     weapons = {
-        "power" : None
+        "power" : None,
+        "reloadTime" : None
         }
-    def __init__(self,healthIn,rectIn,powerIn):
+    def __init__(self,healthIn,rectIn,powerIn,reloadTim):
+        self.reloadTime = reloadTim
         self.health = healthIn
         self.RECT = rectIn
         self.x = self.RECT.x
@@ -188,15 +204,20 @@ class player:
         self.weapons["power"] = powerIn
     def shoot(self):
         firebullet(self.weapons["power"],1,myrect.x,myrect.y,"E")
+    def tryReload(self):
+        self.reloading = True
+        
 """special values"""
 #draw it just like in the original 'TheLittleBlackBox' game.
 myrect = pygame.draw.rect(screen,black, (cx(0),cy(0),15,15) )
 elements.append(myrect)
 newx = cx(0)
 newy = cy(0)
+#disbullet = bullet(1,-50,100,"E")
 print("x: " + str(bullet.x) + " y: " + str(bullet.y) + " height: " + str(bullet.height) + " width: " + str(bullet.width) + " color:" + str(bullet.color) + " radius: " + str(bullet.radius))
 firebullet(1,1,0,0,"E")
-player = player(3,myrect,2)
+player = player(3,myrect,2,200)
+reloadBar = roundRect( (cx(-100),cy(-100),30,100) ,reloadBlue,2)
 """game loop"""
 while running:
     for event in pygame.event.get():
@@ -248,6 +269,9 @@ while running:
     myrect = pygame.draw.rect(screen,green, (newx,newy,15,15) )
     upb(bullets)
     """logging"""
+    #print(bullets)
+    #bullets[0].x = bullets[0].x + 1
+    #print(bullets[0].x)
     #print("x: " + str(bullet.x) + " y: " + str(bullet.y) + " height: " + str(bullet.height) + " width: " + str(bullet.width) + " color:" + str(bullet.color) + " radius: " + str(bullet.radius))
     #print("x: " + str(bullet.x) + " y: " + str(bullet.y) + " height: " + str(bullet.height) + " width: " + str(bullet.width) + " color:" + str(bullet.color) + " radius: " + str(bullet.radius))
     """Final - Update"""
