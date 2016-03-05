@@ -2,8 +2,9 @@
 import pygame
 from pygame import *
 import sys
+import random
 pygame.init()
-screen = pygame.display.set_mode( (680,480) )
+screen = pygame.display.set_mode( (800,800) )
 pygame.display.toggle_fullscreen()
 pygame.display.set_caption("TheLittleBlackBox 2.0")
 img = pygame.image.load("C:/Python34/TheLittleBlackBox_2.0/Images/BlackBoxIcon.png")
@@ -137,6 +138,23 @@ def firebullet(power,velocity,startx,starty,direction):
     if direction == "E":
         XplusCycle.append(ThisBullet)
         bullets.append(ThisBullet)
+def randomDirt():
+    baseColor = (157, 78, 21)
+    red = 157
+    green = 78
+    blue = 21
+    subtractor =  int(random.random() * 10)
+    operation = int(random.random() * 10)
+    if operation > 4:
+        #Add
+        re = ( red + subtractor, green + subtractor , blue + subtractor )
+        return re;
+    if operation < 5:
+        #Subtract
+        re = ( red - subtractor, green - subtractor , blue - subtractor )
+        return re;
+    else:
+        pass;
 """object constructors"""
 class bullet:
     'Game Bullet'
@@ -174,11 +192,11 @@ class Velocity:
     vwait = None
     def __init__(self,waitIn):
         Velocity.wait = waitIn
-class roundRect():
+class roundRect:
     RECT = None
     color = None
     radius = None
-    def __init__(rect,color,radius):
+    def __init__(self,rect,color,radius):
         AAfilledRoundedRect(screen, rect , color , radius)
         self.RECT = rect
         self.color = color
@@ -206,18 +224,54 @@ class player:
         firebullet(self.weapons["power"],1,myrect.x,myrect.y,"E")
     def tryReload(self):
         self.reloading = True
-        
+# game block engines
+class block:
+    """individual block"""
+    # don't convert it, it will for you
+    x = None
+    y = None
+    height = None
+    width = None
+    color = None
+    radius = None
+    # True or False
+    rounded = None
+    def __init__(self,xI,yI,heightI,widthI,colorI,roundedI,radiusI):
+        self.x = xI
+        self.y = yI
+        self.height = heightI
+        self.width = widthI
+        self.color = colorI
+        self.rounded = roundedI  
+        self.radius = radiusI  
+class collage:
+    blocks = []
+    x = 0
+    y = 0
+    def __init__(self,xI,yI):
+        x = xI
+        y = yI
+    def drawAll(self):
+        for i in self.blocks:
+            if i.rounded == True:
+                AAfilledRoundedRect(screen, ( ( cx(self.x) + i.x ) , ( cy(self.y) + i.y ) , i.height , i,width ) , i.color , i.radius )
+            elif i.rounded == False:
+                realx = (cx(self.x) + i.x)
+                realy = (cy(self.y) + i.y * -1)
+                thisBlock = pygame.draw.rect(screen, i.color , ( realx , realy , i.height , i.width) )
+                print("x: " + str(realx) + " y: " + str(realy))
+    #done                    
 """special values"""
 #draw it just like in the original 'TheLittleBlackBox' game.
 myrect = pygame.draw.rect(screen,black, (cx(0),cy(0),15,15) )
 elements.append(myrect)
 newx = cx(0)
 newy = cy(0)
-#disbullet = bullet(1,-50,100,"E")
 print("x: " + str(bullet.x) + " y: " + str(bullet.y) + " height: " + str(bullet.height) + " width: " + str(bullet.width) + " color:" + str(bullet.color) + " radius: " + str(bullet.radius))
-firebullet(1,1,0,0,"E")
 player = player(3,myrect,2,200)
 reloadBar = roundRect( (cx(-100),cy(-100),30,100) ,reloadBlue,2)
+#some game engine stuff
+background = collage(cx(0),cy(0))
 """game loop"""
 while running:
     for event in pygame.event.get():
@@ -253,7 +307,6 @@ while running:
         if vYdcounter > 8:
             velocityY -= 1
             vYdcounter = 0
-    #print("Vx: " + str(velocity) + " Vy: " + str(velocityY) )
     clock.tick(1500)
     """update stuff"""
     chvx()
@@ -268,11 +321,7 @@ while running:
     """redrawing"""
     myrect = pygame.draw.rect(screen,green, (newx,newy,15,15) )
     upb(bullets)
+    background.drawAll()
     """logging"""
-    #print(bullets)
-    #bullets[0].x = bullets[0].x + 1
-    #print(bullets[0].x)
-    #print("x: " + str(bullet.x) + " y: " + str(bullet.y) + " height: " + str(bullet.height) + " width: " + str(bullet.width) + " color:" + str(bullet.color) + " radius: " + str(bullet.radius))
-    #print("x: " + str(bullet.x) + " y: " + str(bullet.y) + " height: " + str(bullet.height) + " width: " + str(bullet.width) + " color:" + str(bullet.color) + " radius: " + str(bullet.radius))
     """Final - Update"""
     pygame.display.update()
